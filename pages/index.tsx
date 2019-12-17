@@ -7,7 +7,28 @@ export default class Home extends Component {
   state = {
     stageScale: 1,
     stageX: 0,
-    stageY: 0
+    stageY: 0,
+    containerRect: {
+      width: 0,
+      height: 0
+    }
+  };
+
+  containerRef = React.createRef<HTMLDivElement>();
+
+  componentDidMount() {
+    this.setContainerSizeToState();
+    window.addEventListener("resize", this.setContainerSizeToState);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener("resize", this.setContainerSizeToState);
+  }
+
+  setContainerSizeToState = () => {
+    const width = this.containerRef.current.offsetWidth;
+    const height = this.containerRef.current.offsetHeight;
+    this.setState(() => ({ containerRect: { width, height } }));
   };
 
   handleWheel = (e: Konva.KonvaEventObject<WheelEvent>) => {
@@ -46,22 +67,24 @@ export default class Home extends Component {
             To get started, edit <code>pages/index.js</code> and save to reload.
           </p>
         </div>
-        <Stage
-          width={800}
-          height={600}
-          style={{ border: "1px solid black" }}
-          onWheel={this.handleWheel}
-          scaleX={this.state.stageScale}
-          scaleY={this.state.stageScale}
-          x={this.state.stageX}
-          y={this.state.stageY}
-          draggable={true}
-        >
-          <Layer>
-            <Text text="Some text on canvas" fontSize={15} />
-            <Rect x={20} y={50} width={100} height={100} fill="red" />
-          </Layer>
-        </Stage>
+        <div className="container" ref={this.containerRef}>
+          <Stage
+            width={this.state.containerRect.width}
+            height={this.state.containerRect.height}
+            style={{ border: "1px solid black", background: "#fff" }}
+            onWheel={this.handleWheel}
+            scaleX={this.state.stageScale}
+            scaleY={this.state.stageScale}
+            x={this.state.stageX}
+            y={this.state.stageY}
+            draggable={true}
+          >
+            <Layer>
+              <Text text="Some text on canvas" fontSize={15} />
+              <Rect x={20} y={50} width={100} height={100} fill="red" />
+            </Layer>
+          </Stage>
+        </div>
 
         <style jsx>{`
           .hero {
@@ -78,6 +101,11 @@ export default class Home extends Component {
           .title,
           .description {
             text-align: center;
+          }
+          .container {
+            background: #333;
+            width: 100%;
+            height: 600px;
           }
         `}</style>
       </div>
